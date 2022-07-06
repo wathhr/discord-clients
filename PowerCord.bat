@@ -26,10 +26,12 @@ call :discord-release & echo.
 if not "%errorlevel%"=="0" goto :end
 call :install & echo.
 if not "%errorlevel%"=="0" goto :end
+call :optional-symlink & echo.
+if not "%errorlevel%"=="0" goto :end
 goto :end
 
 :install
-tasklist | find /i "discord%discord%" || (
+tasklist | find /i "discord%discord%" >nul || (
   echo Launching Discord %discord%
   echo Discord will be killed after the installation is over.
   echo.
@@ -50,7 +52,7 @@ if [%npm%]==[] where npm >nul 2>nul && set "npm=npm"
 if not exist node_modules\ (
   call %npm% install --production
 )
-call %npm% run unplug %discord%
+call %npm% run unplug %discord% >nul 2>nul
 call %npm% run plug %discord%
 if not "%wasNotOpen%"=="true" (
   echo Relaunching Discord %discord%
@@ -59,6 +61,22 @@ if not "%wasNotOpen%"=="true" (
 ) else (
   echo Killing Discord %discord%
   taskkill /f /im Discord%discord%.exe
+)
+goto :eof
+
+:optional-symlink
+choice /C YN /T 10 /D Y /N /M "Would you like to create a symlink of the themes and plugins folder in the root of the PowerCord directory? (Y/n)"
+if %errorlevel% equ 1 (
+  set errorlevel=0
+  if not exist plugins\ mklink plugins src\Powercord\plugins /j
+  if not exist themes\ mklink themes src\Powercord\themes /j
+  type .gitignore | findstr /v /c:"^# http://github.com/wathhr/discord-clients$" | findstr /v /c:"^plugins/$" | findstr /v /c:"^themes/$" > .gitignore.tmp
+  echo.>> .gitignore.tmp
+  echo # http://github.com/wathhr/discord-clients>> .gitignore.tmp
+  echo plugins/>> .gitignore.tmp
+  echo themes/>> .gitignore.tmp
+  del .gitignore
+  rename .gitignore.tmp .gitignore
 )
 goto :eof
 

@@ -28,7 +28,7 @@ if not "%errorlevel%"=="0" goto :end
 goto :end
 
 :install
-tasklist | find /i "discord%discord%" && (
+tasklist | find /i "discord%discord%" >nul && (
   echo Killing Discord %discord%
   taskkill /f /im Discord%discord%.exe
   echo.

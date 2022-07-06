@@ -85,7 +85,7 @@ curl -L -o kernel-installer.exe https://github.com/kernel-mod/installer-cli/rele
 goto :eof
 
 :install
-tasklist | find /i "discord%discord%" && (
+tasklist | find /i "discord%discord%" >nul && (
   echo Killing Discord %discord%
   taskkill /f /im Discord%discord%.exe
   echo.
@@ -113,15 +113,15 @@ goto :eof
 :optional-packages
 choice /C YN /T 10 /D N /N /M "Would you like to install some optional packages? (y/N)"
 if %errorlevel% equ 1 (
+  set errorlevel=0
+  set "user=strencher-kernel" & set "package=settings" & call :kernel-package
   set "user=strencher-kernel" & set "package=bd-compat" & call :kernel-package
   set "user=strencher-kernel" & set "package=pc-compat" & call :kernel-package
-  set "user=strencher-kernel" & set "package=settings" & call :kernel-package
   set "user=discord-modifications" & set "package=discord-utilities" & call :kernel-package
   echo Finishing up
   forfiles /c "cmd /c if @isdir==TRUE (if exist @file\package.json (if not exist @file\node_modules\ (cd @file && echo @path & pnpm i & cd ..)))"
   echo Discord needs to be relaunched/reloaded for these changes to take effect.
 )
-set errorlevel=0
 goto :eof
 
 :kernel-package
