@@ -21,6 +21,7 @@ title %title%
 
 set initialDirectory=%cd%
 set kernelasarDirectory=%~dp0Kernel
+if not exist %kernelasarDirectory% mkdir %kernelasarDirectory%
 cd %kernelasarDirectory%
 
 call :discord-release & echo.
